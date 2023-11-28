@@ -4,7 +4,6 @@
 
 #include "histogram.h"
 #include "aacdec.h"
-#include <iostream>
 #include <cmath>
 
 histogram::histogram( sf::Vector2u const& vp, size_t count, char const *fontname, int scale )
@@ -26,7 +25,7 @@ void histogram::update( uint32_t const *data )
         {
             float up_y = y_center * (1.f - clipped);
             float down_y = y_center * (1.f + clipped);
-            float x = coords::X_OFFSET + m_viewport.x * (float(h) / (m_vertices.getVertexCount() / 2));
+            float x = coords::X_OFFSET + m_viewport.x * (1.f - (float(h) / (m_vertices.getVertexCount() / 2)));
 
             m_vertices[v].position = sf::Vector2f( x, up_y );
             m_vertices[v + 1].position = sf::Vector2f( x, down_y );

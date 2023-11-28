@@ -8,13 +8,13 @@ namespace
     void show_usage( char const *name )
     {
         std::cerr << "usage: " << name << " [-a -f -s -g -h]\n\n";
-        std::cerr << "aac historgram\n\n";
+        std::cerr << "plays AAC data inside ADTS frame and draws its histogram\n\n";
         std::cerr << "options:\n";
-        std::cerr << "\t-a, -aac  audio file with aac-adts format\n";
-        std::cerr << "\t-f, --font  font to draw axis captions and ticks\n";
-        std::cerr << "\t-s, --scale  sum axis scale factor [1-1024] (def. 1)\n";
-        std::cerr << "\t-g, --scale  window geometry (def. 512x512)\n";
-        std::cerr << "\t-h, --help  show this help message and exit\n";
+        std::cerr << "\t-a, audio file with aac-adts format\n";
+        std::cerr << "\t-f, font to draw axis captions and ticks\n";
+        std::cerr << "\t-s, sum axis scale factor [1-1024] (def. 1)\n";
+        std::cerr << "\t-g, window geometry (def. 512x512)\n";
+        std::cerr << "\t-h, show this help message and exit\n";
     }
     bool parseGeometry( char const *arg, std::pair<size_t, size_t> *rc ) {
         char *eptr {};

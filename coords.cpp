@@ -88,11 +88,10 @@ void coords::f_set_x_axis( const sf::Vector2u &vp, size_t count )
                                        pos,
                                        sf::Vector2f(2.f, 5.f),
                                        &m_font,
-                                       std::to_string(-1 * t).c_str()) );
+                                       std::to_string(t).c_str()) );
     }
 }
 
-#include "iostream"
 void coords::f_set_y_axis( const sf::Vector2u &vp, size_t count )
 {
     float y_center = vp.y / 2;

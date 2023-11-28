@@ -3,7 +3,6 @@
 //
 
 #include <cstring>
-#include <iostream>
 #include "adts.h"
 
 adts::adts( std::ifstream &f )
