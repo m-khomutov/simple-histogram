@@ -21,7 +21,7 @@ private:
     sf::RectangleShape m_notch;
 
 private:
-    void draw( sf::RenderTarget& target, const sf::RenderStates& states) const override;
+    void draw( sf::RenderTarget& target, sf::RenderStates states) const override;
 };
 
 struct axis: public sf::Drawable, public sf::Transformable
@@ -33,14 +33,15 @@ struct axis: public sf::Drawable, public sf::Transformable
     std::vector< tick > ticks;
 
 private:
-    void draw( sf::RenderTarget& target, const sf::RenderStates& states) const override;
+    void draw( sf::RenderTarget& target, sf::RenderStates states) const override;
 };
 
 class coords: public sf::Drawable, public sf::Transformable {
 public:
     static const size_t X_OFFSET = 10;
+    static const size_t Y_OFFSET = 30;
 
-    coords( sf::Vector2u const& vp, size_t count, char const *fontname, size_t y_tick_count );
+    coords( sf::Vector2u const& vp, size_t count, char const *fontname, float y_tick_count );
 
 private:
     sf::Font m_font;
@@ -48,10 +49,10 @@ private:
     axis m_y_axis;
 
 private:
-    void draw( sf::RenderTarget& target, const sf::RenderStates& states) const override;
+    void draw( sf::RenderTarget& target, sf::RenderStates states) const override;
 
     void f_set_x_axis( const sf::Vector2u &vp, size_t count );
-    void f_set_y_axis( const sf::Vector2u &vp, size_t count );
+    void f_set_y_axis( const sf::Vector2u &vp, float count );
 };
 
 

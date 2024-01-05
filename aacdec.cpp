@@ -4,7 +4,76 @@
 
 #include <iostream>
 #include "aacdec.h"
-#include "aplayer.h"
+
+#include <cstdio>
+#include <cmath>
+#include <cstring>
+
+decoder::decoder( uint8_t *raw, size_t size )
+: m_handle( NeAACDecOpen() )
+, m_conf( NeAACDecGetCurrentConfiguration( m_handle ) )
+{
+    NeAACDecSetConfiguration( m_handle, m_conf );
+    unsigned long samplerate;
+    unsigned char channels;
+    char err = NeAACDecInit( m_handle, raw, size, &samplerate, &channels );
+    if (err != 0) {
+        // Handle error
+        fprintf(stderr, "NeAACDecInit error: %d\n", err);
+    }
+    fprintf(stderr, "{ samplerate: %lu, channels: %u, bytesRead: %d }\n", samplerate, channels, err);
+}
+
+decoder::~decoder()
+{
+    NeAACDecClose( m_handle );
+}
+
+int16_t * decoder::decode( uint8_t *data, size_t size )
+{
+    void *output = NeAACDecDecode( m_handle, &m_info, data, size );
+    if ((m_info.error == 0) && (m_info.samples > 0)) {
+        // do what you need to do with the decoded samples
+        fprintf(stderr, "decoded %lu samples\n", m_info.samples);
+        fprintf(stderr, "  bytesconsumed: %lu\n", m_info.bytesconsumed);
+        fprintf(stderr, "  channels: %d\n", m_info.channels);
+        fprintf(stderr, "  samplerate: %lu\n", m_info.samplerate);
+        fprintf(stderr, "  sbr: %u\n", m_info.sbr);
+        fprintf(stderr, "  object_type: %u\n", m_info.object_type);
+        fprintf(stderr, "  header_type: %u\n", m_info.header_type);
+        fprintf(stderr, "  num_front_channels: %u\n", m_info.num_front_channels);
+        fprintf(stderr, "  num_side_channels: %u\n", m_info.num_side_channels);
+        fprintf(stderr, "  num_back_channels: %u\n", m_info.num_back_channels);
+        fprintf(stderr, "  num_lfe_channels: %u\n", m_info.num_lfe_channels);
+        fprintf(stderr, "  ps: %u\n", m_info.ps);
+        fprintf(stderr, "\n");
+
+        memset( m_histogram, 0, sizeof(m_histogram) );
+        short *ptr = (short*)output;
+        for( size_t i(0); i < m_info.samples; i += 2 ) {
+            float db = std::log2f(fabsf( float(*ptr) ));
+            if( !std::isinf( db ) ) {
+                m_histogram[uint8_t(db * DBperBit) % SIZE]++;
+            }
+            ptr++;
+        }
+        return (int16_t*)output;
+    } else if (m_info.error != 0) {
+        // Some error occurred while decoding this frame
+        fprintf(stderr, "NeAACDecode error: %d\n", m_info.error);
+        fprintf(stderr, "%s\n", NeAACDecGetErrorMessage(m_info.error));
+    } else {
+        fprintf(stderr, "got nothing...\n");
+    }
+    return nullptr;
+}
+
+size_t const decoder::histogram_size() const
+{
+    return SIZE;
+}
+
+/*#include "aplayer.h"
 
 float clip( float sample )
 {
@@ -93,3 +162,4 @@ void aacdec::decode( uint8_t *buf, size_t size, aplayer *player )
         m_avpkt.dts = m_avpkt.pts = AV_NOPTS_VALUE;
     }
 }
+*/

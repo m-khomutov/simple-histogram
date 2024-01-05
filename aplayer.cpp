@@ -16,7 +16,7 @@ aplayer::aplayer( int rate, int channels )
         throw std::logic_error(std::string("ERROR: Can't open \"") + PCM_DEVICE + "\" PCM device. " + snd_strerror(pcm));
     }
     if( (pcm = snd_pcm_set_params( m_handle,
-                                   SND_PCM_FORMAT_FLOAT,
+                                   SND_PCM_FORMAT_S16,// FLOAT,
                                    SND_PCM_ACCESS_RW_INTERLEAVED,
                                    channels,
                                    rate, 1, (uint64_t)1152 * 1000000L / (uint64_t)rate )) < 0 )

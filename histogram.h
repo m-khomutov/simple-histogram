@@ -9,17 +9,19 @@
 
 class histogram: public sf::Drawable, public sf::Transformable {
 public:
-    histogram( sf::Vector2u const& vp, size_t count, const char* fontname, int scale );
-    void update( uint32_t const *data );
+    histogram( sf::Vector2u const& vp, size_t count, const char* fontname, float scale );
+    void update( uint64_t const *data );
 
 private:
     sf::Vector2u m_viewport;
     sf::VertexArray m_vertices;
-    size_t m_scaler;
+    float m_scaler;
+    float m_coef_x;
+    float m_coef_y;
     coords m_coords;
 
 private:
-    void draw( sf::RenderTarget& target, const sf::RenderStates& states) const override;
+    void draw( sf::RenderTarget& target, sf::RenderStates states) const override;
 };
 
 

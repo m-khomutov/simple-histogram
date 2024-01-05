@@ -10,6 +10,11 @@ aacreader::aacreader( const char *filename )
 {
     if( !m_ifile.is_open() )
         throw std::logic_error( std::string( "failed to open " ) + filename );
+
+    adts adts_( m_ifile );
+    m_decoder.reset( new decoder( adts_.raw(), adts_.size() ) );
+    m_aplayer_.reset( new aplayer( adts_.frequency(), adts_.channels() ) );
+    m_ifile.seekg( 0 );
 }
 
 aacreader::~aacreader()
@@ -29,16 +34,15 @@ void aacreader::readnext()
 
     try {
         adts adts_( m_ifile );
-        if( !m_aacdec_ ) {
-            m_aacdec_.reset( new aacdec );
-            m_aplayer_.reset( new aplayer( adts_.frequency(), adts_.channels() ));
-        }
         if( m_frame.size() < adts_.framesize() ) {
             m_frame.resize( adts_.framesize() );
         }
         memcpy( m_frame.data(), adts_.raw(), adts_.size() );
         m_ifile.read( (char*)(m_frame.data() + adts_.size()), adts_.framesize() - adts_.size() );
-        m_aacdec_->decode( m_frame.data(), adts_.framesize(), m_aplayer_.get() );
+        int16_t *out = m_decoder->decode( m_frame.data(), adts_.framesize() );
+        if( out ) {
+            m_aplayer_->play( (uint8_t*)out, m_decoder->samples() / m_decoder->channels() );
+        }
     }
     catch ( ... ) {
         m_ifile.close();

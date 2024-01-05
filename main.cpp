@@ -12,7 +12,7 @@ namespace
         std::cerr << "options:\n";
         std::cerr << "\t-a, audio file with aac-adts format\n";
         std::cerr << "\t-f, font to draw axis captions and ticks\n";
-        std::cerr << "\t-s, sum axis scale factor [1-1024] (def. 1)\n";
+        std::cerr << "\t-s, sum axis scale factor (def. 1.)\n";
         std::cerr << "\t-g, window geometry (def. 512x512)\n";
         std::cerr << "\t-h, show this help message and exit\n";
     }
@@ -30,7 +30,7 @@ namespace
 
 int main( int argc, char* argv[] )
 {
-    int scale = 1;
+    float scale = 1.f;
     char const *fontname = nullptr;
     char const *filename = nullptr;
     std::pair< size_t , size_t > geometry( 512, 512);
@@ -43,12 +43,7 @@ int main( int argc, char* argv[] )
                 filename = optarg;
                 break;
             case 's':
-                scale = atoi(optarg);
-                if( scale == 0 || abs(scale) > aacdec::PACKLEN )
-                {
-                    show_usage( argv[0]);
-                    return 1;
-                }
+                scale = atof(optarg);
                 break;
             case 'f':
                 fontname = optarg;
@@ -74,11 +69,11 @@ int main( int argc, char* argv[] )
 
     aacreader r( filename );
     sf::Vector2u viewport( geometry.first, geometry.second );
-    sf::RenderWindow window(sf::VideoMode(viewport), filename, sf::Style::Default);
+    sf::RenderWindow window(sf::VideoMode(viewport.x, viewport.y), filename, sf::Style::Default);
     window.setPosition(sf::Vector2i(40, 40));
     window.setFramerateLimit( 60 );
     histogram histogram_( viewport,
-                          -1 * aacdec::MIN_LEVEL_DB + 1,
+                          r.histogram_size(),
                           fontname,
                           scale );
 
@@ -87,7 +82,7 @@ int main( int argc, char* argv[] )
         while( window.pollEvent(event) ) {
             switch( event.type ) {
                 case sf::Event::KeyReleased: {
-                    if( event.key.scancode == sf::Keyboard::Scan::Escape ) {
+                    if( event.key.code == sf::Keyboard::Escape ) {
                         window.close();
                     }
                     break;
@@ -105,6 +100,8 @@ int main( int argc, char* argv[] )
         }
         catch( const std::logic_error& err ) {
             std::cerr << err.what() << std::endl;
+            window.close();
+            break;
         }
         window.clear(sf::Color::Black);
         window.draw( histogram_ );

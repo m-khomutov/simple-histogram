@@ -9,8 +9,6 @@ plays AAC data inside ADTS frame and draws its histogram
 
 **Зависимости**
 
-* Библиотеки `libav`
-  >Декодирование аудио сэмплов
 * Библиотека `asound`
   >Воспроизведение аудио сэмплов
 * Библиотеки `sfml`
@@ -41,7 +39,7 @@ plays AAC data inside ADTS frame and draws its histogram
 options:
 	-a, audio file with aac-adts format
 	-f, font to draw axis captions and ticks
-	-s, sum axis scale factor [1-1024] (def. 1)
+        -s, sum axis scale factor (def. 1.0)
 	-g, window geometry (def. 512x512)
 	-h, show this help message and exit
 

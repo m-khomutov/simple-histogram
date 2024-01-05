@@ -9,7 +9,7 @@ tick::tick( const sf::Vector2f &caption_pos,
             const sf::Vector2f & notch_size,
             sf::Font *font,
             char const *text )
-: m_caption( *font )
+: m_caption( text, *font )
 , m_notch( notch_size )
 {
     m_caption.setString( text );
@@ -25,7 +25,7 @@ tick::tick( const sf::Vector2f &caption_pos,
     m_notch.setOrigin(sf::Vector2f(m_notch.getSize().x / 2, m_notch.getSize().y / 2));
 }
 
-void tick::draw( sf::RenderTarget& target, const sf::RenderStates& states) const
+void tick::draw( sf::RenderTarget& target, sf::RenderStates states) const
 {
     sf::RenderStates st = states.transform * getTransform();
     target.draw( m_caption, st );
@@ -34,7 +34,7 @@ void tick::draw( sf::RenderTarget& target, const sf::RenderStates& states) const
 
 
 axis::axis( sf::Font *font, char const *str )
-: caption( *font )
+: caption( str, *font )
 {
     caption.setString( str );
     caption.setCharacterSize(20);
@@ -44,7 +44,7 @@ axis::axis( sf::Font *font, char const *str )
     caption.setOrigin( sf::Vector2f( r.width / 2, r.height / 2 ) );
 }
 
-void axis::draw( sf::RenderTarget& target, const sf::RenderStates& states) const
+void axis::draw( sf::RenderTarget& target, sf::RenderStates states) const
 {
     sf::RenderStates st = states.transform * getTransform();
     target.draw( line, 2, sf::PrimitiveType::Lines );
@@ -57,7 +57,7 @@ void axis::draw( sf::RenderTarget& target, const sf::RenderStates& states) const
 
 
 
-coords::coords( const sf::Vector2u &vp, size_t count, char const *fontname, size_t y_tick_count )
+coords::coords( const sf::Vector2u &vp, size_t count, char const *fontname, float y_tick_count )
 :  m_x_axis( &m_font, std::string("Db").c_str() )
 ,  m_y_axis( &m_font, std::string("sum").c_str() )
 {
@@ -68,7 +68,7 @@ coords::coords( const sf::Vector2u &vp, size_t count, char const *fontname, size
     f_set_y_axis( vp, y_tick_count );
 }
 
-void coords::draw( sf::RenderTarget& target, const sf::RenderStates& states) const
+void coords::draw( sf::RenderTarget& target, sf::RenderStates states) const
 {
     sf::RenderStates st = states.transform * getTransform();
     target.draw( m_x_axis, st );
@@ -77,13 +77,12 @@ void coords::draw( sf::RenderTarget& target, const sf::RenderStates& states) con
 
 void coords::f_set_x_axis( const sf::Vector2u &vp, size_t count )
 {
-    float y_center = vp.y / 2;
-    m_x_axis.caption.setPosition( sf::Vector2f(vp.x - 40.f, vp.y / 2 + 10.f) );
-    m_x_axis.line[0] = sf::Vertex(sf::Vector2f(X_OFFSET, y_center));
-    m_x_axis.line[1] = sf::Vertex(sf::Vector2f(vp.x, y_center));
+    m_x_axis.caption.setPosition( sf::Vector2f(vp.x - 40.f, vp.y - Y_OFFSET) );
+    m_x_axis.line[0] = sf::Vertex(sf::Vector2f(X_OFFSET, vp.y - Y_OFFSET));
+    m_x_axis.line[1] = sf::Vertex(sf::Vector2f(vp.x, vp.y - Y_OFFSET));
     for( int t(0); t < count; t += 10 )
     {
-        sf::Vector2f pos(coords::X_OFFSET + vp.x * (float(t) / count), y_center);
+        sf::Vector2f pos(coords::X_OFFSET + vp.x * (float(t) / count), vp.y - Y_OFFSET);
         m_x_axis.ticks.push_back( tick(pos,
                                        pos,
                                        sf::Vector2f(2.f, 5.f),
@@ -92,16 +91,15 @@ void coords::f_set_x_axis( const sf::Vector2u &vp, size_t count )
     }
 }
 
-void coords::f_set_y_axis( const sf::Vector2u &vp, size_t count )
+void coords::f_set_y_axis( const sf::Vector2u &vp, float count )
 {
-    float y_center = vp.y / 2;
     m_y_axis.caption.setPosition( sf::Vector2f(X_OFFSET + 10.f, 10.f) );
     m_y_axis.line[0] = sf::Vertex(sf::Vector2f(X_OFFSET, 0.f));
     m_y_axis.line[1] = sf::Vertex(sf::Vector2f(X_OFFSET, vp.y));
     size_t delta = count / 10;
     for( size_t t(0); t < count; t += delta )
     {
-        sf::Vector2f pos(coords::X_OFFSET + 20.f, y_center * (1.f - (float(t) / count)));
+        sf::Vector2f pos(coords::X_OFFSET + 20.f, vp.y * (1.f - (float(t) / count)));
         m_y_axis.ticks.push_back( tick( sf::Vector2f(pos.x, pos.y - 10.f),
                                         sf::Vector2f(X_OFFSET, pos.y),
                                         sf::Vector2f(5.f, 2.f),

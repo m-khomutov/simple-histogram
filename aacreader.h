@@ -10,6 +10,7 @@
 
 #include <fstream>
 #include <memory>
+#include <vector>
 
 class aacreader {
 public:
@@ -18,16 +19,20 @@ public:
 
     bool ready() const;
     void readnext();
-    uint32_t const * histogram() const
+    uint64_t const * histogram() const
     {
-        return m_aacdec_->histogram();
+        return m_decoder->histogram();
+    }
+    size_t const histogram_size() const
+    {
+        return m_decoder->histogram_size();
     }
 
 private:
     std::ifstream m_ifile;
-    std::shared_ptr< aacdec > m_aacdec_;
     std::shared_ptr< aplayer > m_aplayer_;
     std::vector< uint8_t > m_frame;
+    std::shared_ptr< decoder > m_decoder;
 };
 
 

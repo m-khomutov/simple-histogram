@@ -4,7 +4,7 @@ project(simple_histogram)
 set(CMAKE_CXX_STANDARD 17)
 
 FILE(GLOB DECODER_SOURCES
-    decoder/aac/*.h decoder/aac/*.cpp
+    faad/*.h faad/*.c
 )
 
 add_executable(simple_histogram
@@ -17,6 +17,5 @@ add_executable(simple_histogram
                coords.cpp
                ${DECODER_SOURCES})
 target_link_libraries(simple_histogram
-                      avformat avcodec avutil swresample swscale
                       asound
                       sfml-system sfml-window sfml-graphics)
